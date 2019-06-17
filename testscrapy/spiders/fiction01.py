@@ -1,8 +1,10 @@
 import scrapy
 import os,re
+from testscrapy.items import FictionItem
+from scrapy.loader import ItemLoader
 
 def ma(s):
-    pattern=r'\S'
+    pattern=r'[\d\w\u4e00-\u9fff]'
     #汉字
     r'[\u4e00-\u9fff]'
 
@@ -11,7 +13,7 @@ def ma(s):
     l=p.findall(s)
     res = ''.join(l)
     return res
-import xml.etree.ElementTree as et
+
 class Fiction(scrapy.Spider):
     name = 't1'
     def start_requests(self):
@@ -32,5 +34,26 @@ class Fiction(scrapy.Spider):
             f.write(s.encode(encoding='utf8'))
         self.log('Saved file %s' % filename)
         if next is not None:
-            next = response.urljoin(next)
-            yield scrapy.Request(url=next, callback=self.parse)
+            #next = response.urljoin(next)
+            #yield scrapy.Request(url=next, callback=self.parse)
+            yield response.follow(url=next,callback=self.parse)
+class Fiction01(scrapy.Spider):
+    name = 't2'
+    def start_requests(self):
+        urls=['http://www.xiaoqiang520.cc/3/3085/41136.html']
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    def parse(self, response):
+        l=ItemLoader(item=FictionItem(),response=response)
+        l.add_xpath('title','//h2/text()')
+        l.add_xpath('content','//div[@name="content"]/p')
+        l.add_xpath('next','//div[@id="thumb"]/a[4]/@href')
+        path='d:/downloads/'
+        print(l.load_item()['content'])
+        with open(path+l.load_item()['title']+'.txt','wb') as f:
+            f.write(l.load_item()['content'])
+        if l.load_item()['content'] is not None:
+            #next = response.urljoin(next)
+            #yield scrapy.Request(url=next, callback=self.parse)
+            yield response.follow(url=l.load_item()['next'],callback=self.parse)
