@@ -1,6 +1,6 @@
 import scrapy
 import os,re
-from testscrapy.items import FictionItem
+from testscrapy.items import FictionItem,EyeItem
 from scrapy.loader import ItemLoader
 
 def ma(s):
@@ -57,3 +57,28 @@ class Fiction01(scrapy.Spider):
             #next = response.urljoin(next)
             #yield scrapy.Request(url=next, callback=self.parse)
             yield response.follow(url=l.load_item()['next'],callback=self.parse)
+
+class Az(scrapy.Spider):
+    name = 'az'
+    def start_requests(self):
+        urls=['https://www.amazon.cn/product-reviews/B00TL7GBO2']
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+import json
+class Voogu(scrapy.Spider):
+    name = 'voo'
+    def start_requests(self):
+        urls=['https://www.voogueme.com/eyeglasses.html']
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    def parse(self, response):
+        l = ItemLoader(item=EyeItem(), response=response)
+        l.add_xpath('title','//div[@class="product-wrapp"]/div[1]/div[1]/a/@title')
+        l.add_xpath('wish','//div[@class="product-wrapp"]/div[1]/div[1]/div/span/text()')
+        l.add_xpath('sku','//div[@class="product-wrapp"]/div[1]/div[1]/div/i/@data-sku')
+        with open('d:/123.txt','a') as f:
+            f.write(json.dumps(dict(l.load_item())))
+        next=response.xpath('//a[@class="next i-next"]/@href').get()
+        yield response.follow(url=next,callback=self.parse)

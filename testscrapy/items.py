@@ -35,3 +35,8 @@ class FictionItem(scrapy.Item):
      title=scrapy.Field(input_processor=MapCompose(ma),output_processor=Join())
      content=scrapy.Field(input_processor=MapCompose(en),output_processor=Bytejoin())
      next=scrapy.Field(output_processor=Join())
+
+class EyeItem(scrapy.Item):
+    title=scrapy.Field()
+    wish=scrapy.Field()
+    sku=scrapy.Field()
