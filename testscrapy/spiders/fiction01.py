@@ -78,7 +78,7 @@ class Voogu(scrapy.Spider):
         l.add_xpath('title','//div[@class="product-wrapp"]/div[1]/div[1]/a/@title')
         l.add_xpath('wish','//div[@class="product-wrapp"]/div[1]/div[1]/div/span/text()')
         l.add_xpath('sku','//div[@class="product-wrapp"]/div[1]/div[1]/div/i/@data-sku')
-        with open('d:/123.txt','a') as f:
+        with open('123.txt','a') as f:
             f.write(json.dumps(dict(l.load_item())))
         next=response.xpath('//a[@class="next i-next"]/@href').get()
         yield response.follow(url=next,callback=self.parse)
